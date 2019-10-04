@@ -12,7 +12,7 @@ namespace Osm.Revit.Utils
             if (point == null) throw new Exception("DEBUG POINT -> NULL POINT");
 
             FamilySymbol fs = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_GenericModel)
-                    .Where(f => f.Name.ToLower().Contains("debug")).FirstOrDefault() as FamilySymbol;
+                    .Where(f => f.Name.ToLower().Contains("debugpoint")).FirstOrDefault() as FamilySymbol;
 
             if (fs == null) throw new Exception("DEBUG POINT -> NO DEBUG POINT FOUND ON DOCUMENT");
 

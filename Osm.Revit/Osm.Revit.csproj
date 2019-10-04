@@ -277,6 +277,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\TestCommand2.cs" />
     <Compile Include="Commands\TestCommand.cs" />
     <Compile Include="Extensions\CurveLoops.cs" />
     <Compile Include="Extensions\Curves.cs" />
@@ -295,6 +296,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Services\HttpService.cs" />
+    <Compile Include="Services\CoordinatesService.cs" />
     <Compile Include="Utils\CustomFloatWindow.cs" />
     <Compile Include="Utils\Debug.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
