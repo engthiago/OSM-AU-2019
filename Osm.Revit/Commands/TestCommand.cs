@@ -23,10 +23,10 @@ namespace Osm.Revit.Commands
             var httpService = new HttpService();
             var mapBounds = new MapBounds
             {
-                Left = -73.88025,
-                Bottom = 40.71562,
-                Right = -73.87901,
-                Top = 40.71712,
+                Left = 140.78583,
+                Bottom = -37.83315,
+                Right = 140.78851,
+                Top = -37.83048,
             };
 
             var source = httpService.GetMapStream(mapBounds);
@@ -68,6 +68,22 @@ namespace Osm.Revit.Commands
                         }
                     }
                 }
+
+                var bb0 = coordService.GetRevitCoords(mapBounds.Bottom, mapBounds.Left);
+                var bb1 = coordService.GetRevitCoords(mapBounds.Top, mapBounds.Left);
+                var bb2 = coordService.GetRevitCoords(mapBounds.Top, mapBounds.Right);
+                var bb3 = coordService.GetRevitCoords(mapBounds.Bottom, mapBounds.Right);
+
+                var l0 = Line.CreateBound(bb0, bb1);
+                var l1 = Line.CreateBound(bb1, bb2);
+                var l2 = Line.CreateBound(bb2, bb3);
+                var l3 = Line.CreateBound(bb3, bb0);
+
+                doc.Create.NewModelCurve(l0, sketchPlane);
+                doc.Create.NewModelCurve(l1, sketchPlane);
+                doc.Create.NewModelCurve(l2, sketchPlane);
+                doc.Create.NewModelCurve(l3, sketchPlane);
+
                 t.Commit();
             }
 

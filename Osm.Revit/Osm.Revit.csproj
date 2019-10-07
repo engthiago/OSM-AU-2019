@@ -277,7 +277,6 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\TestCommand2.cs" />
     <Compile Include="Commands\TestCommand.cs" />
     <Compile Include="Extensions\CurveLoops.cs" />
     <Compile Include="Extensions\Curves.cs" />
@@ -299,9 +298,6 @@
     <Compile Include="Services\CoordinatesService.cs" />
     <Compile Include="Utils\CustomFloatWindow.cs" />
     <Compile Include="Utils\Debug.cs" />
-    <Compile Include="Utils\ImageUtils.cs" />
-    <Compile Include="Utils\RealToFractionHelper.cs" />
-    <Compile Include="Utils\VisualTreeHelpers.cs" />
     <Compile Include="Utils\WarningSwallower.cs" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
