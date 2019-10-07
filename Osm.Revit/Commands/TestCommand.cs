@@ -23,10 +23,10 @@ namespace Osm.Revit.Commands
             var httpService = new HttpService();
             var mapBounds = new MapBounds
             {
-                Left = 140.78583,
-                Bottom = -37.83315,
-                Right = 140.78851,
-                Top = -37.83048,
+                Left = -73.85282,
+                Bottom = 40.68363,
+                Right = -73.84965,
+                Top = 40.68585,
             };
 
             var source = httpService.GetMapStream(mapBounds);
@@ -61,11 +61,23 @@ namespace Osm.Revit.Commands
                             }
                         }
 
+                        var curveLoop = new CurveLoop();
                         for (int i = 0; i < points.Count - 1; i++)
                         {
                             Line line = Line.CreateBound(points[i], points[i + 1]);
-                            doc.Create.NewModelCurve(line, sketchPlane);
+                            curveLoop.Append(line);
                         }
+
+                        var heightTag = way.Tags.FirstOrDefault(tag => tag.Key == "height");
+                        var heightFeet = UnitUtils.ConvertToInternalUnits(3, DisplayUnitType.DUT_METERS);
+                        if (double.TryParse(heightTag.Value, out double heightMeters))
+                        {
+                            heightFeet = UnitUtils.ConvertToInternalUnits(heightMeters, DisplayUnitType.DUT_METERS);
+                        }
+
+                        var solid = GeometryCreationUtilities.CreateExtrusionGeometry(new List<CurveLoop> { curveLoop }, XYZ.BasisZ, heightFeet);
+                        var directShape = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
+                        directShape.AppendShape(new List<GeometryObject> { solid });
                     }
                 }
 
