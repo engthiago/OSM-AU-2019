@@ -13,7 +13,7 @@ using System.Collections.Generic;
 namespace Osm.Revit.Commands
 {
     [Transaction(TransactionMode.Manual)]
-    public class TestCommand : IExternalCommand
+    public class BuildingsCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -34,14 +34,12 @@ namespace Osm.Revit.Commands
             var everything = source.FilterNodes(n => true).ToList();
             var buildings = everything.Where(n => n.Tags.IsTrue("building"));
 
-            System.Windows.MessageBox.Show(buildings.Count().ToString());
-        
             var coordService = new CoordinatesService();
             coordService.Geolocate(mapBounds.Bottom, mapBounds.Left);
 
             var levelId = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Levels).WhereElementIsNotElementType().FirstElementId();
 
-            using (Transaction t = new Transaction(doc, "points"))
+            using (Transaction t = new Transaction(doc, "Transfer OSM Data"))
             {
                 t.Start();
                 var sketchPlane = SketchPlane.Create(doc, levelId);
@@ -95,6 +93,8 @@ namespace Osm.Revit.Commands
                 doc.Create.NewModelCurve(l1, sketchPlane);
                 doc.Create.NewModelCurve(l2, sketchPlane);
                 doc.Create.NewModelCurve(l3, sketchPlane);
+
+
 
                 t.Commit();
             }

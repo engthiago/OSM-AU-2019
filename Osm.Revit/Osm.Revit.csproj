@@ -277,7 +277,8 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\TestCommand.cs" />
+    <Compile Include="Commands\StreetsCommand.cs" />
+    <Compile Include="Commands\BuildingsCommand.cs" />
     <Compile Include="Extensions\CurveLoops.cs" />
     <Compile Include="Extensions\Curves.cs" />
     <Compile Include="Extensions\Doubles.cs" />
@@ -296,6 +297,7 @@
     </Compile>
     <Compile Include="Services\HttpService.cs" />
     <Compile Include="Services\CoordinatesService.cs" />
+    <Compile Include="Services\RoadwayService.cs" />
     <Compile Include="Utils\CustomFloatWindow.cs" />
     <Compile Include="Utils\Debug.cs" />
     <Compile Include="Utils\WarningSwallower.cs" />
