@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{70F297DC-77EE-41DA-B21D-3B136D44873C}</ProjectGuid>
+    <ProjectGuid>{91A2A7E7-04DF-4B08-A629-B94728A2CE80}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Osm.Revit</RootNamespace>
-    <AssemblyName>Osm.Revit</AssemblyName>
+    <RootNamespace>Osm.RevitDA</RootNamespace>
+    <AssemblyName>Osm.RevitDA</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -131,16 +130,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="di.container">
-      <HintPath>..\packages\di.container.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="OsmSharp, Version=6.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.6.2.0\lib\net45\OsmSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="protobuf-net, Version=2.3.7.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <HintPath>..\packages\protobuf-net.2.3.7\lib\net40\protobuf-net.dll</HintPath>
-    </Reference>
     <Reference Include="RevitAPI">
       <HintPath>$(RevitExePath)\RevitAPI.dll</HintPath>
       <Private>False</Private>
@@ -168,49 +158,19 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\CurveLoops.cs" />
-    <Compile Include="Extensions\Curves.cs" />
-    <Compile Include="Extensions\Doubles.cs" />
-    <Compile Include="Extensions\Lists.cs" />
-    <Compile Include="Extensions\MathH.cs" />
-    <Compile Include="Extensions\RevitViewports.cs" />
-    <Compile Include="Extensions\XYZ.cs" />
-    <Compile Include="Models\MapBounds.cs" />
-    <Compile Include="Models\Osm\OsmElement.cs" />
-    <Compile Include="Models\Osm\StreetIntersection.cs" />
-    <Compile Include="Models\Osm\StreetSegment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Services\BuildingService.cs" />
-    <Compile Include="Services\OsmService.cs" />
-    <Compile Include="Services\SolidGeometryService.cs" />
-    <Compile Include="Services\GeometryService.cs" />
-    <Compile Include="Services\OsmRepository.cs" />
-    <Compile Include="Services\CoordinatesService.cs" />
-    <Compile Include="Services\StreetService.cs" />
-    <Compile Include="Services\TopoSurfaceService.cs" />
-    <Compile Include="Services\View3DService.cs" />
-    <Compile Include="Store\ContainerStore.cs" />
-    <Compile Include="Store\OsmStore.cs" />
-    <Compile Include="Utils\WarningSwallower.cs" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
-    </None>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\Geometry\" />
-    <Folder Include="Resources\" />
+    <ProjectReference Include="..\Osm.Revit\Osm.Revit.csproj">
+      <Project>{70f297dc-77ee-41da-b21d-3b136d44873c}</Project>
+      <Name>Osm.Revit</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
