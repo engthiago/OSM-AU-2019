@@ -279,6 +279,7 @@
   <ItemGroup>
     <Compile Include="Commands\StreetsCommand.cs" />
     <Compile Include="Commands\BuildingsCommand.cs" />
+    <Compile Include="Commands\StreetsCommand2.cs" />
     <Compile Include="Extensions\CurveLoops.cs" />
     <Compile Include="Extensions\Curves.cs" />
     <Compile Include="Extensions\Doubles.cs" />
@@ -287,6 +288,8 @@
     <Compile Include="Extensions\RevitViewports.cs" />
     <Compile Include="Extensions\XYZ.cs" />
     <Compile Include="Models\MapBounds.cs" />
+    <Compile Include="Models\Osm\OsmElement.cs" />
+    <Compile Include="Models\Osm\StreetSegment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -295,9 +298,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Services\GeometryService.cs" />
     <Compile Include="Services\HttpService.cs" />
     <Compile Include="Services\CoordinatesService.cs" />
-    <Compile Include="Services\RoadwayService.cs" />
+    <Compile Include="Services\StreetService.cs" />
     <Compile Include="Utils\CustomFloatWindow.cs" />
     <Compile Include="Utils\Debug.cs" />
     <Compile Include="Utils\WarningSwallower.cs" />
