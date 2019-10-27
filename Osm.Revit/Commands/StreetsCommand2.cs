@@ -2,6 +2,7 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Osm.Revit.Models;
+using Osm.Revit.Models.Osm;
 using Osm.Revit.Services;
 using OsmSharp;
 using System;
@@ -52,7 +53,7 @@ namespace Osm.Revit.Commands
 
             var streetService = new StreetService();
             var streetSegments = streetService.CreateStreetSegments(osmStreets, nodes, boundLines, mapBounds);
-            var intersections = streetService.GetIntersections(streetSegments);
+            var intersections = streetService.CreateIntersections(streetSegments);
 
 
             using (Transaction t = new Transaction(doc, "Lines"))
@@ -75,6 +76,35 @@ namespace Osm.Revit.Commands
                 {
                     var arc = Arc.Create(intersec.Origin, 20, 0, Math.PI * 2, XYZ.BasisX, XYZ.BasisY);
                     doc.Create.NewModelCurve(arc, sketchplane);
+                }
+
+                foreach (var intersec in intersections)
+                {
+                    var intersStreetSegments = streetSegments.Where(s => intersec.StreetSegmentIds.Contains(s.SegmentId));
+                    var arc = Arc.Create(intersec.Origin, 20, 0, Math.PI * 1.99, XYZ.BasisX, XYZ.BasisY);
+
+                    var arcDic = new Dictionary<StreetSegment, double>();
+                    foreach (var segm in intersStreetSegments)
+                    {
+                        arc.Intersect(segm.Line, out IntersectionResultArray resultArray);
+                        if (resultArray != null && !resultArray.IsEmpty)
+                        {
+                            var result = resultArray.get_Item(0);
+                            var intPoint = result.XYZPoint;
+                            var pResult = arc.Project(intPoint);
+                            var param = arc.ComputeNormalizedParameter(pResult.Parameter);
+                            arcDic.Add(segm, param);
+                        }
+                    }
+
+                    var orderedDic = arcDic.OrderBy(d => d.Value);
+
+                    foreach (var intt in orderedDic)
+                    {
+                        var point = arc.Evaluate(intt.Value, true);
+                        var arc2 = Arc.Create(point, 5, 0, Math.PI * 2, XYZ.BasisX, XYZ.BasisY);
+                        doc.Create.NewModelCurve(arc2, sketchplane);
+                    }
                 }
 
                 t.Commit();

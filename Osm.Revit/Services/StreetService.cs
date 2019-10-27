@@ -68,7 +68,7 @@ namespace Osm.Revit.Services
             return streetSegments;
         }
 
-        public List<StreetIntersection> GetIntersections(List<StreetSegment> streetSegments)
+        public List<StreetIntersection> CreateIntersections(List<StreetSegment> streetSegments)
         {
             var uniquePoints = new List<XYZ>();
             foreach (var line in streetSegments.Select(s => s.Line))
@@ -130,9 +130,8 @@ namespace Osm.Revit.Services
                 }
             }
 
-
-
             return intersections;
         }
+
     }
 }
