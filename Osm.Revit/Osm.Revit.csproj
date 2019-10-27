@@ -277,9 +277,8 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\StreetsCommand.cs" />
     <Compile Include="Commands\BuildingsCommand.cs" />
-    <Compile Include="Commands\StreetsCommand2.cs" />
+    <Compile Include="Commands\StreetsCommand.cs" />
     <Compile Include="Extensions\CurveLoops.cs" />
     <Compile Include="Extensions\Curves.cs" />
     <Compile Include="Extensions\Doubles.cs" />

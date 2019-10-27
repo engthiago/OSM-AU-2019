@@ -16,5 +16,7 @@ namespace Osm.Revit.Models.Osm
 
         public List<long> StreetSegmentIds { get; set; }
         public List<long> StreetIds { get; set; }
+
+        public CurveLoop CurveLoop { get; set; }
     }
 }

@@ -21,7 +21,7 @@ namespace Osm.Revit.Services
         {
             geometryService = new GeometryService();
             coordService = new CoordinatesService();
-            defaultStreetWidth = UnitUtils.ConvertToInternalUnits(3000, DisplayUnitType.DUT_MILLIMETERS);
+            defaultStreetWidth = UnitUtils.ConvertToInternalUnits(6000, DisplayUnitType.DUT_MILLIMETERS);
         }
 
         public List<StreetSegment> CreateStreetSegments(List<Way> OsmStreets, List<Node> nodes, CurveLoop boundLines, MapBounds mapBounds)
@@ -126,6 +126,8 @@ namespace Osm.Revit.Services
                         }
                     }
 
+                    intersection.CurveLoop = CreateIntersectionCurveLoop(intersStreetSegments, intersection);
+
                     intersections.Add(intersection);
                 }
             }
@@ -133,5 +135,65 @@ namespace Osm.Revit.Services
             return intersections;
         }
 
+        private CurveLoop CreateIntersectionCurveLoop(List<StreetSegment> intersStreetSegments, StreetIntersection intersection)
+        {
+            var arc = Arc.Create(intersection.Origin, defaultStreetWidth, 0, Math.PI * 1.99, XYZ.BasisX, XYZ.BasisY);
+
+            var lineOffsetDic = new Dictionary<Line, double>();
+            var offsetLines = new List<Line>();
+
+            foreach (var segm in intersStreetSegments)
+            {
+                var line0 = segm.Line.CreateOffset(defaultStreetWidth / 2, XYZ.BasisZ) as Line;
+                offsetLines.Add(line0);
+                var line1 = segm.Line.CreateOffset(defaultStreetWidth / 2, -XYZ.BasisZ) as Line;
+                offsetLines.Add(line1);
+            }
+
+            foreach (var line in offsetLines)
+            {
+                arc.Intersect(line, out IntersectionResultArray resultArray);
+                if (resultArray != null && !resultArray.IsEmpty)
+                {
+                    var result = resultArray.get_Item(0);
+                    var intPoint = result.XYZPoint;
+                    var pResult = arc.Project(intPoint);
+                    var param = arc.ComputeNormalizedParameter(pResult.Parameter);
+                    lineOffsetDic.Add(line, param);
+                }
+            }
+
+            var orderedDic = lineOffsetDic.OrderBy(d => d.Value).ToList();
+            orderedDic.Add(orderedDic[0]);
+
+            var loop = new CurveLoop();
+            for (int i = 0; i < orderedDic.Count - 1; i++)
+            {
+                var start = arc.Evaluate(orderedDic[i].Value, true);
+                var end = arc.Evaluate(orderedDic[i + 1].Value, true);
+
+                var line = Line.CreateBound(start, end);
+                loop.Append(line);
+            }
+
+            return loop;
+        }
+
+        public XYZ ProjectLineToIntersection(Line line, StreetIntersection intersection)
+        {
+            if (intersection == null) return null;
+
+            foreach (var curve in intersection.CurveLoop)
+            {
+                curve.Intersect(line, out IntersectionResultArray resultArray);
+                if (resultArray != null && !resultArray.IsEmpty)
+                {
+                    var result = resultArray.get_Item(0);
+                    return result.XYZPoint;
+                }
+            }
+
+            return null;
+        }
     }
 }
