@@ -34,11 +34,12 @@ namespace Osm.Revit.Commands
 
             var source = httpService.GetMapStream(mapBounds);
 
-            var everything = source.Where(n => true).ToList();
-            var streets = everything.Where(n => (n.Type == OsmGeoType.Way &&
+            var everything = source.ToList();
+            var nodes = everything.Where(n => n.Type == OsmGeoType.Node).Cast<Node>().ToList();
+            var osmStreets = everything.Where(n => (n.Type == OsmGeoType.Way &&
                                                 n.Tags != null
                                                 && n.Tags.Contains("highway", "residential")
-                                                && n is Way)).Cast<Way>();
+                                                && n is Way)).Cast<Way>().ToList();
 
             var coordService = new CoordinatesService();
             coordService.Geolocate(mapBounds.Bottom, mapBounds.Left);
@@ -49,30 +50,9 @@ namespace Osm.Revit.Commands
             var geometryService = new GeometryService();
             var boundLines = geometryService.CreateBoundingLines(mapBounds);
 
-            foreach (var street in streets)
-            {
-                var points = new List<XYZ>();
-                foreach (var nodeId in street.Nodes)
-                {
-                    var geometry = everything.FirstOrDefault(n => n.Id == nodeId);
-                    if (geometry is Node node)
-                    {
-                        var coords = coordService.GetRevitCoords((double)node.Latitude, (double)node.Longitude);
-                        points.Add(coords);
-                    }
-                }
-
-                for (int i = 0; i < points.Count - 1; i++)
-                {
-                    var start = points[i];
-                    var end = points[i + 1];
-
-                    if (!geometryService.IsInsideBounds(boundLines, start) && !geometryService.IsInsideBounds(boundLines, end)) continue;
-
-                    Line line = Line.CreateBound(points[i], points[i + 1]);
-                    lines.Add(line);
-                }
-            }
+            var streetService = new StreetService();
+            var streetSegments = streetService.CreateStreetSegments(osmStreets, nodes, boundLines, mapBounds);
+            var intersections = streetService.GetIntersections(streetSegments);
 
 
             using (Transaction t = new Transaction(doc, "Lines"))
@@ -86,29 +66,18 @@ namespace Osm.Revit.Commands
                     doc.Create.NewModelCurve(curve, sketchplane);
                 }
 
-                t.Commit();
-            }
-
-            if (lines.Count > 0)
-            {
-                using (Transaction t = new Transaction(doc, "Lines"))
+                foreach (var line in streetSegments.Select(s => s.Line))
                 {
-                    t.Start();
-
-                    var sketchplane = SketchPlane.Create(doc, levelId);
-                    foreach (var line in lines)
-                    {
-                        doc.Create.NewModelCurve(line, sketchplane);
-                    }
-
-                    t.Commit();
+                    doc.Create.NewModelCurve(line, sketchplane);
                 }
-            }
 
-            var intersPoints = geometryService.GetIntersections(lines, 4);
-            foreach (var point in intersPoints)
-            {
+                foreach (var intersec in intersections)
+                {
+                    var arc = Arc.Create(intersec.Origin, 20, 0, Math.PI * 2, XYZ.BasisX, XYZ.BasisY);
+                    doc.Create.NewModelCurve(arc, sketchplane);
+                }
 
+                t.Commit();
             }
 
 

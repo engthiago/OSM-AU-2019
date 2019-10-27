@@ -289,6 +289,7 @@
     <Compile Include="Extensions\XYZ.cs" />
     <Compile Include="Models\MapBounds.cs" />
     <Compile Include="Models\Osm\OsmElement.cs" />
+    <Compile Include="Models\Osm\StreetIntersection.cs" />
     <Compile Include="Models\Osm\StreetSegment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -302,6 +303,7 @@
     <Compile Include="Services\HttpService.cs" />
     <Compile Include="Services\CoordinatesService.cs" />
     <Compile Include="Services\StreetService.cs" />
+    <Compile Include="Store\OsmIdStore.cs" />
     <Compile Include="Utils\CustomFloatWindow.cs" />
     <Compile Include="Utils\Debug.cs" />
     <Compile Include="Utils\WarningSwallower.cs" />

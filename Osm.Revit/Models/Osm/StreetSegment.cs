@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.Revit.DB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,8 @@ namespace Osm.Revit.Models.Osm
 {
     public class StreetSegment: OsmElement
     {
-        string Width { get; set; }
+        public long SegmentId { get; set; }
+        public double Width { get; set; }
+        public Line Line { get; set; }
     }
 }

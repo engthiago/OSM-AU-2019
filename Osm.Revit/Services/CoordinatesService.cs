@@ -16,7 +16,7 @@ namespace Osm.Revit.Services
         {
         }
 
-        public void Geolocate(double left, double bottom)
+        public void Geolocate(double bottom, double left)
         {
             this.left = left;
             this.bottom = bottom;
@@ -35,8 +35,8 @@ namespace Osm.Revit.Services
 
         public XYZ GetRevitCoords(double lati, double longi)
         {
-            var dlong = GeoLongToMeteres(longi - this.bottom, this.left);
-            var dlat = GeoLatToMeters(lati - this.left);
+            var dlong = GeoLongToMeteres(longi - this.left, this.bottom);
+            var dlat = GeoLatToMeters(lati - this.bottom);
 
             var x = UnitUtils.ConvertToInternalUnits(dlong, DisplayUnitType.DUT_METERS);
             var y = UnitUtils.ConvertToInternalUnits(dlat, DisplayUnitType.DUT_METERS);

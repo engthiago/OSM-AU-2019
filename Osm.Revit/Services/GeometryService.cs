@@ -73,48 +73,7 @@ namespace Osm.Revit.Services
             return false;
         }
 
-
-        public List<XYZ> GetIntersections(List<Line> lines, int intersectCount)
-        {
-            var uniquePoints = new List<XYZ>();
-            foreach (var line in lines)
-            {
-                var start = line.GetEndPoint(0);
-                var end = line.GetEndPoint(1);
-
-                if (!ListContainsPoint(uniquePoints, start))
-                {
-                    uniquePoints.Add(start);
-                }
-
-                if (!ListContainsPoint(uniquePoints, start))
-                {
-                    uniquePoints.Add(end);
-                }
-            }
-
-            var intersections = new List<XYZ>();
-            foreach (var point in uniquePoints)
-            {
-                var count = 0;
-                foreach (var line in lines)
-                {
-                    if (line.Distance(point) < 0.0001)
-                    {
-                        count++;
-                    }
-                }
-
-                if (count == intersectCount)
-                {
-                    intersections.Add(point);
-                }
-            }
-
-            return intersections;
-        }
-
-        private bool ListContainsPoint(List<XYZ> list, XYZ point)
+        public bool ListContainsPoint(List<XYZ> list, XYZ point)
         {
             return list.FirstOrDefault(p => p.IsAlmostEqualTo(point)) != null;
         }
