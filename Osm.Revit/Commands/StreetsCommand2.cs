@@ -72,38 +72,86 @@ namespace Osm.Revit.Commands
                     doc.Create.NewModelCurve(line, sketchplane);
                 }
 
-                foreach (var intersec in intersections)
-                {
-                    var arc = Arc.Create(intersec.Origin, 20, 0, Math.PI * 2, XYZ.BasisX, XYZ.BasisY);
-                    doc.Create.NewModelCurve(arc, sketchplane);
-                }
+                //foreach (var intersec in intersections)
+                //{
+                //    var arc = Arc.Create(intersec.Origin, 20, 0, Math.PI * 2, XYZ.BasisX, XYZ.BasisY);
+                //    doc.Create.NewModelCurve(arc, sketchplane);
+                //}
 
                 foreach (var intersec in intersections)
                 {
                     var intersStreetSegments = streetSegments.Where(s => intersec.StreetSegmentIds.Contains(s.SegmentId));
                     var arc = Arc.Create(intersec.Origin, 20, 0, Math.PI * 1.99, XYZ.BasisX, XYZ.BasisY);
 
-                    var arcDic = new Dictionary<StreetSegment, double>();
+                    var lineOffsetDic = new Dictionary<Line, double>();
+                    var offsetLines = new List<Line>();
+
                     foreach (var segm in intersStreetSegments)
                     {
-                        arc.Intersect(segm.Line, out IntersectionResultArray resultArray);
+                        var line0 = segm.Line.CreateOffset(streetWidth / 2, XYZ.BasisZ) as Line;
+                        offsetLines.Add(line0);
+                        var line1 = segm.Line.CreateOffset(streetWidth / 2, -XYZ.BasisZ) as Line;
+                        offsetLines.Add(line1);
+                    }
+
+                    foreach (var line in offsetLines)
+                    {
+                        arc.Intersect(line, out IntersectionResultArray resultArray);
                         if (resultArray != null && !resultArray.IsEmpty)
                         {
                             var result = resultArray.get_Item(0);
                             var intPoint = result.XYZPoint;
                             var pResult = arc.Project(intPoint);
                             var param = arc.ComputeNormalizedParameter(pResult.Parameter);
-                            arcDic.Add(segm, param);
+                            lineOffsetDic.Add(line, param);
                         }
                     }
 
-                    var orderedDic = arcDic.OrderBy(d => d.Value);
+                    var orderedDic = lineOffsetDic.OrderBy(d => d.Value).ToList();
+                    orderedDic.Add(orderedDic[0]);
 
+                    var textTypeId = new FilteredElementCollector(doc).OfClass(typeof(TextNoteType)).FirstElementId();
+
+                    //var current = 1;
                     foreach (var intt in orderedDic)
                     {
                         var point = arc.Evaluate(intt.Value, true);
                         var arc2 = Arc.Create(point, 5, 0, Math.PI * 2, XYZ.BasisX, XYZ.BasisY);
                         doc.Create.NewModelCurve(arc2, sketchplane);
+                        //TextNote.Create(doc, doc.ActiveView.Id, point, current.ToString(), textTypeId);
+                        //current++;
+                    }
+
+                    if (orderedDic.Count < 9)
+                    {
+                        continue;
+                    }
+
+                    var intersectLoop = new List<Line>();
+                    var current = 1;
+                    for (int i = 0; i < orderedDic.Count() - 2; i += 2)
+                    {
+                        var line1 = orderedDic[i].Key.Clone();
+                        var line2 = orderedDic[i + 1].Key.Clone();
+                        var line3 = orderedDic[i + 2].Key.Clone();
+
+                        line2.Intersect(line3, out IntersectionResultArray resultArray);
+                        if (resultArray != null && !resultArray.IsEmpty)
+                        {
+                            var result = resultArray.get_Item(0);
+                            var end = result.XYZPoint;
+                            var start = line1.Project(end).XYZPoint;
+                            var ll = Line.CreateBound(start, end);
+                            intersectLoop.Add(ll);
+                            var mid = ll.Evaluate(0.5, true);
+                            TextNote.Create(doc, doc.ActiveView.Id, mid, current.ToString(), textTypeId);
+                            current++;
+                        }
+                    }
+
+                    foreach (var line in intersectLoop)
+                    {
+                        doc.Create.NewModelCurve(line, sketchplane);
                     }
                 }
 
