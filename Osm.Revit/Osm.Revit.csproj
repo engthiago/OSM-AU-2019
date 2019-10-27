@@ -279,6 +279,7 @@
   <ItemGroup>
     <Compile Include="Commands\BuildingsCommand.cs" />
     <Compile Include="Commands\StreetsCommand.cs" />
+    <Compile Include="Commands\TopoCommand.cs" />
     <Compile Include="Extensions\CurveLoops.cs" />
     <Compile Include="Extensions\Curves.cs" />
     <Compile Include="Extensions\Doubles.cs" />
