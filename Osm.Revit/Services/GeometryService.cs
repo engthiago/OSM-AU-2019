@@ -7,17 +7,15 @@ namespace Osm.Revit.Services
 {
     public class GeometryService
     {
-        CoordinatesService coordService;
+        readonly CoordinatesService coordService;
 
-        public GeometryService()
+        public GeometryService(CoordinatesService coordService)
         {
-            this.coordService = new CoordinatesService();
+            this.coordService = coordService;
         }
 
         public CurveLoop CreateBoundingLines(MapBounds mapBounds)
         {
-            coordService.Geolocate(mapBounds.Bottom, mapBounds.Left);
-
             var bb0 = coordService.GetRevitCoords(mapBounds.Bottom, mapBounds.Left);
             var bb1 = coordService.GetRevitCoords(mapBounds.Top, mapBounds.Left);
             var bb2 = coordService.GetRevitCoords(mapBounds.Top, mapBounds.Right);

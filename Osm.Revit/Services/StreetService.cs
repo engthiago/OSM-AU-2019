@@ -15,19 +15,20 @@ namespace Osm.Revit.Services
     {
         private readonly GeometryService geometryService;
         private readonly CoordinatesService coordService;
+        private readonly OsmStore store;
         private readonly double defaultStreetWidth;
 
-        public StreetService()
+        public StreetService(GeometryService geometryService, CoordinatesService coordService, OsmStore store)
         {
-            geometryService = new GeometryService();
-            coordService = new CoordinatesService();
             defaultStreetWidth = UnitUtils.ConvertToInternalUnits(6000, DisplayUnitType.DUT_MILLIMETERS);
+            this.geometryService = geometryService;
+            this.coordService = coordService;
+            this.store = store;
         }
 
         public List<StreetSegment> CreateStreetSegments(List<Way> OsmStreets, List<Node> nodes, CurveLoop boundLines, MapBounds mapBounds)
         {
             List<StreetSegment> streetSegments = new List<StreetSegment>();
-            coordService.Geolocate(mapBounds.Bottom, mapBounds.Left);
 
             foreach (var osmStreet in OsmStreets)
             {
@@ -53,7 +54,7 @@ namespace Osm.Revit.Services
                     var line = Line.CreateBound(points[i], points[i + 1]);
                     var segment = new StreetSegment();
                     segment.Id = (long)osmStreet.Id;
-                    segment.SegmentId = OsmIdStore.MoveNext();
+                    segment.SegmentId = store.MoveNextId();
                     segment.Line = line;
                     segment.Width = defaultStreetWidth;
                     if (osmStreet.Tags.TryGetValue("name", out string name))
@@ -104,7 +105,7 @@ namespace Osm.Revit.Services
                 if (count > 1)
                 {
                     var intersection = new StreetIntersection();
-                    intersection.Id = OsmIdStore.MoveNext();
+                    intersection.Id = store.MoveNextId();
                     intersection.StreetIds = intersStreetSegments.Select(s => s.Id).Distinct().ToList();
                     intersection.NumberOfStreets = intersection.StreetIds.Count;
                     intersection.StreetSegmentIds = intersStreetSegments.Select(s => s.SegmentId).Distinct().ToList();

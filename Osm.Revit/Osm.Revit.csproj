@@ -131,6 +131,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="di.container">
+      <HintPath>..\packages\di.container.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="OsmSharp, Version=6.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\OsmSharp.6.2.0\lib\net45\OsmSharp.dll</HintPath>
@@ -299,13 +302,14 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Services\BuildingService.cs" />
+    <Compile Include="Services\SolidGeometryService.cs" />
     <Compile Include="Services\GeometryService.cs" />
-    <Compile Include="Services\HttpService.cs" />
+    <Compile Include="Services\OsmRepository.cs" />
     <Compile Include="Services\CoordinatesService.cs" />
     <Compile Include="Services\StreetService.cs" />
-    <Compile Include="Store\OsmIdStore.cs" />
-    <Compile Include="Utils\CustomFloatWindow.cs" />
-    <Compile Include="Utils\Debug.cs" />
+    <Compile Include="Store\ContainerStore.cs" />
+    <Compile Include="Store\OsmStore.cs" />
     <Compile Include="Utils\WarningSwallower.cs" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -317,6 +321,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Models\Geometry\" />
     <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
