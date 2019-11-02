@@ -12,16 +12,14 @@ namespace Osm.Revit.Services
     {
         private readonly GeometryService geometryService;
         private readonly CoordinatesService coordService;
-        private readonly OsmStore store;
+        private readonly OsmStore osmStore;
         private readonly SolidGeometryService solidGeometryService;
-        private readonly double defaultStreetWidth;
 
-        public StreetService(GeometryService geometryService, CoordinatesService coordService, OsmStore store, SolidGeometryService solidGeometryService)
+        public StreetService(GeometryService geometryService, CoordinatesService coordService, OsmStore osmStore, SolidGeometryService solidGeometryService)
         {
-            defaultStreetWidth = UnitUtils.ConvertToInternalUnits(6000, DisplayUnitType.DUT_MILLIMETERS);
             this.geometryService = geometryService;
             this.coordService = coordService;
-            this.store = store;
+            this.osmStore = osmStore;
             this.solidGeometryService = solidGeometryService;
         }
 
@@ -40,7 +38,7 @@ namespace Osm.Revit.Services
             foreach (var intersData in intersectionDataList)
             {
                 var intersection = solidGeometryService
-                            .Build(doc, new List<CurveLoop> { intersData.CurveLoop }, 1, new ElementId(BuiltInCategory.OST_Roads));
+                            .Build(doc, new List<CurveLoop> { intersData.CurveLoop }, osmStore.DefaultStreetThickness, new ElementId(BuiltInCategory.OST_Roads));
 
                 streetsAndIntersections.Add(intersection);
             }
@@ -62,13 +60,13 @@ namespace Osm.Revit.Services
 
                 var line = Line.CreateBound(newStart, newEnd);
 
-                var lineOff0 = line.CreateOffset(defaultStreetWidth / 2, XYZ.BasisZ);
-                var lineOff1 = line.CreateOffset(defaultStreetWidth / 2, -XYZ.BasisZ);
+                var lineOff0 = line.CreateOffset(osmStore.DefaultStreetWidth / 2, XYZ.BasisZ);
+                var lineOff1 = line.CreateOffset(osmStore.DefaultStreetWidth / 2, -XYZ.BasisZ);
 
                 var curveLoop = lineOff0.CreateCurveLoop(lineOff1);
 
                 var street = solidGeometryService
-                        .Build(doc, new List<CurveLoop> { curveLoop }, 1, new ElementId(BuiltInCategory.OST_Roads));
+                        .Build(doc, new List<CurveLoop> { curveLoop }, osmStore.DefaultStreetThickness, new ElementId(BuiltInCategory.OST_Roads));
 
                 streetsAndIntersections.Add(street);
             }
@@ -105,9 +103,9 @@ namespace Osm.Revit.Services
                     var line = Line.CreateBound(points[i], points[i + 1]);
                     var segment = new StreetSegment();
                     segment.Id = (long)osmStreet.Id;
-                    segment.SegmentId = store.MoveNextId();
+                    segment.SegmentId = osmStore.MoveNextId();
                     segment.Line = line;
-                    segment.Width = defaultStreetWidth;
+                    segment.Width = osmStore.DefaultStreetWidth;
                     if (osmStreet.Tags.TryGetValue("name", out string name))
                     {
                         segment.Name = name;
@@ -156,7 +154,7 @@ namespace Osm.Revit.Services
                 if (count > 1)
                 {
                     var intersection = new StreetIntersection();
-                    intersection.Id = store.MoveNextId();
+                    intersection.Id = osmStore.MoveNextId();
                     intersection.StreetIds = intersStreetSegments.Select(s => s.Id).Distinct().ToList();
                     intersection.NumberOfStreets = intersection.StreetIds.Count;
                     intersection.StreetSegmentIds = intersStreetSegments.Select(s => s.SegmentId).Distinct().ToList();
@@ -189,16 +187,16 @@ namespace Osm.Revit.Services
 
         private CurveLoop CreateIntersectionCurveLoop(List<StreetSegment> intersStreetSegments, StreetIntersection intersection)
         {
-            var arc = Arc.Create(intersection.Origin, defaultStreetWidth, 0, Math.PI * 1.99, XYZ.BasisX, XYZ.BasisY);
+            var arc = Arc.Create(intersection.Origin, osmStore.DefaultStreetWidth, 0, Math.PI * 1.99, XYZ.BasisX, XYZ.BasisY);
 
             var lineOffsetDic = new Dictionary<Line, double>();
             var offsetLines = new List<Line>();
 
             foreach (var segm in intersStreetSegments)
             {
-                var line0 = segm.Line.CreateOffset(defaultStreetWidth / 2, XYZ.BasisZ) as Line;
+                var line0 = segm.Line.CreateOffset(osmStore.DefaultStreetWidth / 2, XYZ.BasisZ) as Line;
                 offsetLines.Add(line0);
-                var line1 = segm.Line.CreateOffset(defaultStreetWidth / 2, -XYZ.BasisZ) as Line;
+                var line1 = segm.Line.CreateOffset(osmStore.DefaultStreetWidth / 2, -XYZ.BasisZ) as Line;
                 offsetLines.Add(line1);
             }
 

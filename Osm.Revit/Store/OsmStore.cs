@@ -1,4 +1,5 @@
-﻿using Osm.Revit.Models;
+﻿using Autodesk.Revit.DB;
+using Osm.Revit.Models;
 using System;
 
 namespace Osm.Revit.Store
@@ -25,7 +26,9 @@ namespace Osm.Revit.Store
         public double MapLeft => mapBounds.Left;
         public double MapRight => mapBounds.Right;
 
+        public double DefaultStreetWidth { get; set; } = UnitUtils.ConvertToInternalUnits(6, DisplayUnitType.DUT_METERS);
 
+        public double DefaultStreetThickness { get; set; } = UnitUtils.ConvertToInternalUnits(0.05, DisplayUnitType.DUT_METERS);
 
 
         public void Geolocate(MapBounds mapBounds)
