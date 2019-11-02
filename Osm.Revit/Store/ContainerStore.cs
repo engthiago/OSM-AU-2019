@@ -12,6 +12,7 @@ namespace Osm.Revit.Store
             if (registered) return;
 
             Container.Register<OsmStore>();
+            Container.Register<OsmService>();
             Container.Register<CoordinatesService>();
             Container.Register<GeometryService>();
             Container.Register<OsmRepository>();

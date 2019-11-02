@@ -16,25 +16,19 @@ namespace Osm.Revit.Commands
             Document doc = uidoc.Document;
 
             ContainerStore.Registration();
-            var osmRepo = ContainerStore.Resolve<OsmRepository>();
-            var buildingService = ContainerStore.Resolve<BuildingService>();
-            var streetService = ContainerStore.Resolve<StreetService>();
-            var topoService = ContainerStore.Resolve<TopoSurfaceService>();
-            var viewService = ContainerStore.Resolve<View3DService>();
+            var osmServie = ContainerStore.Resolve<OsmService>();
 
             using (Transaction t = new Transaction(doc, "Build City"))
             {
                 t.Start();
 
                 // -73.8513, 40.6796, -73.8386, 40.6890
-                using (var source = osmRepo.GetMapStream(-74.0533, 40.6804, -73.9976, 40.7124))
-                {
-                    var everything = source.ToList();
-                    buildingService.Run(doc, everything);
-                    streetService.Run(doc, everything);
-                    topoService.Run(doc);
-                    viewService.Run(doc);
-                }
+                // -74.0533, 40.6804, -73.9976, 40.7124
+                osmServie.Run(doc,
+                    new Models.MapBounds
+                    {
+                        Left = -73.8513, Bottom = 40.6796, Right = -73.8386, Top = 40.6890
+                    });
 
                 t.Commit();
             }
