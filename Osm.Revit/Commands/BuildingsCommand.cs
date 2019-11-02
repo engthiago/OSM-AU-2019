@@ -2,11 +2,14 @@
 using Autodesk.Revit.UI;
 using Osm.Revit.Services;
 using Autodesk.Revit.Attributes;
-using System.Linq;
 using Osm.Revit.Store;
+using Osm.Revit.Models;
 
 namespace Osm.Revit.Commands
 {
+    /// <summary>
+    /// Example of how to run the app, this can be removed for Revit I/O
+    /// </summary>
     [Transaction(TransactionMode.Manual)]
     public class BuildingsCommand : IExternalCommand
     {
@@ -15,6 +18,7 @@ namespace Osm.Revit.Commands
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
 
+            // Container storage for IOC
             ContainerStore.Registration();
             var osmServie = ContainerStore.Resolve<OsmService>();
 
@@ -24,11 +28,17 @@ namespace Osm.Revit.Commands
 
                 // -73.8513, 40.6796, -73.8386, 40.6890
                 // -74.0533, 40.6804, -73.9976, 40.7124
-                osmServie.Run(doc,
-                    new Models.MapBounds
-                    {
-                        Left = -73.8513, Bottom = 40.6796, Right = -73.8386, Top = 40.6890
-                    });
+                // Define the map bounding box
+                var mapbounds = new MapBounds
+                {
+                    Left = -73.8513,
+                    Bottom = 40.6796,
+                    Right = -73.8386,
+                    Top = 40.6890
+                };
+
+                // Run the logic
+                osmServie.Run(doc, mapbounds);
 
                 t.Commit();
             }
