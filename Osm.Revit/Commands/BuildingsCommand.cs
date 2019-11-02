@@ -26,6 +26,7 @@ namespace Osm.Revit.Commands
             var buildingService = ContainerStore.Resolve<BuildingService>();
             var streetService = ContainerStore.Resolve<StreetService>();
             var topoService = ContainerStore.Resolve<TopoSurfaceService>();
+            var viewService = ContainerStore.Resolve<View3DService>();
 
             using (Transaction t = new Transaction(doc, "Build City"))
             {
@@ -37,6 +38,7 @@ namespace Osm.Revit.Commands
                     buildingService.Run(doc, everything);
                     streetService.Run(doc, everything);
                     topoService.Run(doc);
+                    viewService.Run(doc);
                 }
 
                 t.Commit();

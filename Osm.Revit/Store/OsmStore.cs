@@ -8,7 +8,6 @@ namespace Osm.Revit.Store
         private static int currentId;
 
         public int LastId => currentId;
-
         public double Tau => 2 * Math.PI;
         public double RadiusEquator => 6356752.314245179;
         public double RadiusPolar => 6378137.0;
@@ -25,6 +24,9 @@ namespace Osm.Revit.Store
         public double MapBottom => mapBounds.Bottom;
         public double MapLeft => mapBounds.Left;
         public double MapRight => mapBounds.Right;
+
+
+
 
         public void Geolocate(MapBounds mapBounds)
         {

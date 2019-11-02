@@ -307,6 +307,7 @@
     <Compile Include="Services\CoordinatesService.cs" />
     <Compile Include="Services\StreetService.cs" />
     <Compile Include="Services\TopoSurfaceService.cs" />
+    <Compile Include="Services\View3DService.cs" />
     <Compile Include="Store\ContainerStore.cs" />
     <Compile Include="Store\OsmStore.cs" />
     <Compile Include="Utils\WarningSwallower.cs" />
