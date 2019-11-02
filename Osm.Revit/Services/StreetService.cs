@@ -1,13 +1,10 @@
 ﻿using Autodesk.Revit.DB;
-using Osm.Revit.Models;
 using Osm.Revit.Models.Osm;
 using Osm.Revit.Store;
 using OsmSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Osm.Revit.Services
 {
@@ -16,18 +13,72 @@ namespace Osm.Revit.Services
         private readonly GeometryService geometryService;
         private readonly CoordinatesService coordService;
         private readonly OsmStore store;
+        private readonly SolidGeometryService solidGeometryService;
         private readonly double defaultStreetWidth;
 
-        public StreetService(GeometryService geometryService, CoordinatesService coordService, OsmStore store)
+        public StreetService(GeometryService geometryService, CoordinatesService coordService, OsmStore store, SolidGeometryService solidGeometryService)
         {
             defaultStreetWidth = UnitUtils.ConvertToInternalUnits(6000, DisplayUnitType.DUT_MILLIMETERS);
             this.geometryService = geometryService;
             this.coordService = coordService;
             this.store = store;
+            this.solidGeometryService = solidGeometryService;
         }
 
-        public List<StreetSegment> CreateStreetSegments(List<Way> OsmStreets, List<Node> nodes, CurveLoop boundLines, MapBounds mapBounds)
+        public List<DirectShape> Run(Document doc, List<OsmGeo> everything)
         {
+            List<DirectShape> streetsAndIntersections = new List<DirectShape>();
+
+            var osmStreets = everything.Where(n => (n.Type == OsmGeoType.Way &&
+                                    n.Tags != null
+                                    && n.Tags.Contains("highway", "residential")
+                                    && n is Way)).Cast<Way>().ToList();
+
+            var streetDataList = CreateStreetSegments(osmStreets, everything);
+            var intersectionDataList = CreateIntersections(streetDataList);
+
+            foreach (var intersData in intersectionDataList)
+            {
+                var intersection = solidGeometryService
+                            .Build(doc, new List<CurveLoop> { intersData.CurveLoop }, 1, new ElementId(BuiltInCategory.OST_Roads));
+
+                streetsAndIntersections.Add(intersection);
+            }
+
+            foreach (var streetData in streetDataList)
+            {
+                var start = streetData.Line.GetEndPoint(0);
+                var end = streetData.Line.GetEndPoint(1);
+                var mid = streetData.Line.Evaluate(0.5, true);
+
+                var startIntersect = intersectionDataList.FirstOrDefault(o => o.Origin.IsAlmostEqualTo(start));
+                var endIntersect = intersectionDataList.FirstOrDefault(o => o.Origin.IsAlmostEqualTo(end));
+
+                var newStart = ProjectLineToIntersection(streetData.Line, startIntersect);
+                var newEnd = ProjectLineToIntersection(streetData.Line, endIntersect);
+
+                newStart = newStart ?? start;
+                newEnd = newEnd ?? end;
+
+                var line = Line.CreateBound(newStart, newEnd);
+
+                var lineOff0 = line.CreateOffset(defaultStreetWidth / 2, XYZ.BasisZ);
+                var lineOff1 = line.CreateOffset(defaultStreetWidth / 2, -XYZ.BasisZ);
+
+                var curveLoop = lineOff0.CreateCurveLoop(lineOff1);
+
+                var street = solidGeometryService
+                        .Build(doc, new List<CurveLoop> { curveLoop }, 1, new ElementId(BuiltInCategory.OST_Roads));
+
+                streetsAndIntersections.Add(street);
+            }
+
+            return streetsAndIntersections;
+        }
+
+        public List<StreetSegment> CreateStreetSegments(List<Way> OsmStreets, List<OsmGeo> everything)
+        {
+            var boundLines = this.geometryService.CreateBoundingLines();
             List<StreetSegment> streetSegments = new List<StreetSegment>();
 
             foreach (var osmStreet in OsmStreets)
@@ -35,7 +86,7 @@ namespace Osm.Revit.Services
                 var points = new List<XYZ>();
                 foreach (var nodeId in osmStreet.Nodes)
                 {
-                    var geometry = nodes.FirstOrDefault(n => n.Id == nodeId);
+                    var geometry = everything.FirstOrDefault(n => n.Id == nodeId);
                     if (geometry is Node node)
                     {
                         var coords = coordService.GetRevitCoords((double)node.Latitude, (double)node.Longitude);

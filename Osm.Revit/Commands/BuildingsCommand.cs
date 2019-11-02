@@ -24,15 +24,19 @@ namespace Osm.Revit.Commands
             ContainerStore.Registration();
             var osmRepo = ContainerStore.Resolve<OsmRepository>();
             var buildingService = ContainerStore.Resolve<BuildingService>();
+            var streetService = ContainerStore.Resolve<StreetService>();
+            var topoService = ContainerStore.Resolve<TopoSurfaceService>();
 
-            using (Transaction t = new Transaction(doc, "Build Streets"))
+            using (Transaction t = new Transaction(doc, "Build City"))
             {
                 t.Start();
 
-                using (var source = osmRepo.GetMapStream(-73.85282, 40.68363, -73.84965, 40.68585))
+                using (var source = osmRepo.GetMapStream())
                 {
-                    var everthing = source.ToList();
-                    buildingService.Run(doc, everthing);
+                    var everything = source.ToList();
+                    buildingService.Run(doc, everything);
+                    streetService.Run(doc, everything);
+                    topoService.Run(doc);
                 }
 
                 t.Commit();

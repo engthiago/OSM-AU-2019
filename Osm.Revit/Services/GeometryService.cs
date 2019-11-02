@@ -1,5 +1,6 @@
 ﻿using Autodesk.Revit.DB;
 using Osm.Revit.Models;
+using Osm.Revit.Store;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,18 +9,20 @@ namespace Osm.Revit.Services
     public class GeometryService
     {
         readonly CoordinatesService coordService;
+        private readonly OsmStore osmStore;
 
-        public GeometryService(CoordinatesService coordService)
+        public GeometryService(CoordinatesService coordService, OsmStore osmStore)
         {
             this.coordService = coordService;
+            this.osmStore = osmStore;
         }
 
-        public CurveLoop CreateBoundingLines(MapBounds mapBounds)
+        public CurveLoop CreateBoundingLines()
         {
-            var bb0 = coordService.GetRevitCoords(mapBounds.Bottom, mapBounds.Left);
-            var bb1 = coordService.GetRevitCoords(mapBounds.Top, mapBounds.Left);
-            var bb2 = coordService.GetRevitCoords(mapBounds.Top, mapBounds.Right);
-            var bb3 = coordService.GetRevitCoords(mapBounds.Bottom, mapBounds.Right);
+            var bb0 = coordService.GetRevitCoords(osmStore.MapBottom, osmStore.MapLeft);
+            var bb1 = coordService.GetRevitCoords(osmStore.MapTop, osmStore.MapLeft);
+            var bb2 = coordService.GetRevitCoords(osmStore.MapTop, osmStore.MapRight);
+            var bb3 = coordService.GetRevitCoords(osmStore.MapBottom, osmStore.MapRight);
 
             var l0 = Line.CreateBound(bb0, bb1);
             var l1 = Line.CreateBound(bb1, bb2);

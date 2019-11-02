@@ -22,7 +22,7 @@ namespace Osm.Revit.Services
             this.osmStore = osmStore;
         }
 
-        public XmlOsmStreamSource GetMapStream(double left, double bottom, double right, double top)
+        public XmlOsmStreamSource GetMapStream(double left = -73.85282, double bottom = 40.68363, double right = -73.84965, double top = 40.68585)
         {
             var mapBounds = new MapBounds
             {

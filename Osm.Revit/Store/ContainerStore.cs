@@ -18,6 +18,7 @@ namespace Osm.Revit.Store
             Container.Register<StreetService>();
             Container.Register<SolidGeometryService>();
             Container.Register<BuildingService>();
+            Container.Register<TopoSurfaceService>();
 
             registered = true;
         }
