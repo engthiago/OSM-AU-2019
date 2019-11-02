@@ -28,7 +28,7 @@ namespace Osm.Revit.Services
             view3d.IsSectionBoxActive = true;
 
             var height = UnitUtils.ConvertToInternalUnits(200, DisplayUnitType.DUT_METERS);
-            var groundDepth = UnitUtils.ConvertToInternalUnits(10, DisplayUnitType.DUT_METERS);
+            var groundDepth = UnitUtils.ConvertToInternalUnits(30, DisplayUnitType.DUT_METERS);
 
             var max = this.coordService
                 .GetRevitCoords(osmStore.MapTop, osmStore.MapRight)

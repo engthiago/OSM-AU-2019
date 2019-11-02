@@ -1,14 +1,8 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Osm.Revit.Models;
 using Osm.Revit.Services;
-using OsmSharp.Streams;
-using System.IO;
-using OsmSharp.Tags;
 using Autodesk.Revit.Attributes;
 using System.Linq;
-using OsmSharp;
-using System.Collections.Generic;
 using Osm.Revit.Store;
 
 namespace Osm.Revit.Commands
@@ -32,7 +26,8 @@ namespace Osm.Revit.Commands
             {
                 t.Start();
 
-                using (var source = osmRepo.GetMapStream())
+                // -73.8513, 40.6796, -73.8386, 40.6890
+                using (var source = osmRepo.GetMapStream(-74.0533, 40.6804, -73.9976, 40.7124))
                 {
                     var everything = source.ToList();
                     buildingService.Run(doc, everything);

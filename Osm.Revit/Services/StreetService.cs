@@ -29,7 +29,7 @@ namespace Osm.Revit.Services
 
             var osmStreets = everything.Where(n => (n.Type == OsmGeoType.Way &&
                                     n.Tags != null
-                                    && n.Tags.Contains("highway", "residential")
+                                    && n.Tags.ContainsKey("highway")
                                     && n is Way)).Cast<Way>().ToList();
 
             var streetDataList = CreateStreetSegments(osmStreets, everything);
@@ -37,10 +37,17 @@ namespace Osm.Revit.Services
 
             foreach (var intersData in intersectionDataList)
             {
-                var intersection = solidGeometryService
-                            .Build(doc, new List<CurveLoop> { intersData.CurveLoop }, osmStore.DefaultStreetThickness, new ElementId(BuiltInCategory.OST_Roads));
+                try
+                {
+                    var intersection = solidGeometryService
+                        .Build(doc, new List<CurveLoop> { intersData.CurveLoop }, osmStore.DefaultStreetThickness, new ElementId(BuiltInCategory.OST_Roads));
+                    
+                    streetsAndIntersections.Add(intersection);
+                }
+                catch (Exception e)
+                {
+                }
 
-                streetsAndIntersections.Add(intersection);
             }
 
             foreach (var streetData in streetDataList)
@@ -177,8 +184,10 @@ namespace Osm.Revit.Services
                     }
 
                     intersection.CurveLoop = CreateIntersectionCurveLoop(intersStreetSegments, intersection);
-
-                    intersections.Add(intersection);
+                    if (intersection.CurveLoop != null)
+                    {
+                        intersections.Add(intersection);
+                    }
                 }
             }
 
@@ -214,6 +223,12 @@ namespace Osm.Revit.Services
             }
 
             var orderedDic = lineOffsetDic.OrderBy(d => d.Value).ToList();
+
+            if (orderedDic.Count == 0)
+            {
+                return null;
+            }
+
             orderedDic.Add(orderedDic[0]);
 
             var loop = new CurveLoop();
@@ -221,6 +236,11 @@ namespace Osm.Revit.Services
             {
                 var start = arc.Evaluate(orderedDic[i].Value, true);
                 var end = arc.Evaluate(orderedDic[i + 1].Value, true);
+
+                if (start.DistanceTo(end) < 0.05)
+                {
+                    return null;
+                }
 
                 var line = Line.CreateBound(start, end);
                 loop.Append(line);
