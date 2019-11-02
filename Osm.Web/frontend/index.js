@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function (event) {
-    var currentLayer;
+
+    var currentBoundLayer;
     var mapBounds = {
         left: -73.99154663085939,
         bottom: 40.69638796878103,
@@ -16,13 +17,25 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     var map = L.map('mapid').setView([ centerY , centerX ], 13);
 
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-        maxZoom: 18,
+    var streets = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {   
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
             '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
             'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         id: 'mapbox.streets'
-    }).addTo(map);
+    });
+
+    var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    });
+
+    satellite.addTo(map);
+
+    var baseLayers = {
+        "Satellite": satellite,
+        "Streets": streets
+    };
+
+    L.control.layers(baseLayers).addTo(map);
 
     L.drawLocal.draw.handlers.rectangle.tooltip.start = 'Draw the map bounding box';
     L.drawLocal.draw.toolbar.buttons.rectangle = 'Create boundings';
@@ -82,13 +95,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
         }
 
         editableLayers.addLayer(layer);
-        currentLayer = layer;
+        currentBoundLayer = layer;
     });
 
     function removeLayer() {
-        if (currentLayer) {
-            editableLayers.removeLayer(currentLayer);
-            currentLayer = null;
+        if (currentBoundLayer) {
+            editableLayers.removeLayer(currentBoundLayer);
+            currentBoundLayer = null;
         }
     }
 
