@@ -37,17 +37,13 @@ namespace Osm.Revit.Services
 
             foreach (var intersData in intersectionDataList)
             {
-                try
-                {
-                    var intersection = solidGeometryService
-                        .Build(doc, new List<CurveLoop> { intersData.CurveLoop }, osmStore.DefaultStreetThickness, new ElementId(BuiltInCategory.OST_Roads));
-                    
-                    streetsAndIntersections.Add(intersection);
-                }
-                catch (Exception e)
-                {
-                }
+                var intersection = solidGeometryService
+                    .Build(doc, new List<CurveLoop> { intersData.CurveLoop }, osmStore.DefaultStreetThickness, new ElementId(BuiltInCategory.OST_Roads));
 
+                if (intersection == null)
+                    continue;
+
+                streetsAndIntersections.Add(intersection);
             }
 
             foreach (var streetData in streetDataList)
@@ -65,6 +61,12 @@ namespace Osm.Revit.Services
                 newStart = newStart ?? start;
                 newEnd = newEnd ?? end;
 
+                if ((newStart - newEnd).GetLength() < 0.005)
+                {
+                    Console.WriteLine($"Warning: Street services encountered street with lenght less than 0.001 (skipping).");
+                    continue;
+                }
+
                 var line = Line.CreateBound(newStart, newEnd);
 
                 var lineOff0 = line.CreateOffset(osmStore.DefaultStreetWidth / 2, XYZ.BasisZ);
@@ -74,7 +76,8 @@ namespace Osm.Revit.Services
 
                 var street = solidGeometryService
                         .Build(doc, new List<CurveLoop> { curveLoop }, osmStore.DefaultStreetThickness, new ElementId(BuiltInCategory.OST_Roads));
-
+                if (street != null)
+                    continue;
                 streetsAndIntersections.Add(street);
             }
 

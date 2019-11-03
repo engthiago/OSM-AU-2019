@@ -29,6 +29,8 @@ namespace Osm.Revit.Services
             foreach (var building in buildings)
             {
                 var solid = RunBuilding(doc, building, everything);
+                if (solid == null)
+                    continue;
                 solids.Add(solid);
             }
             return solids;
