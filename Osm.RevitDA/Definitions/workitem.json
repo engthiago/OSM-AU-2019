@@ -6,6 +6,10 @@
     },
     "osmParam": {
       "url": "https://api.openstreetmap.org/api/0.6"
+    },
+    "result": {
+      "url": "<URL>",
+      "verb": "put"
     }
   }
 }

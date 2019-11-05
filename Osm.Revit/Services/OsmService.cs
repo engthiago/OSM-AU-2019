@@ -1,11 +1,7 @@
 ﻿using Autodesk.Revit.DB;
 using Osm.Revit.Models;
-using Osm.Revit.Store;
-using System;
-using System.Collections.Generic;
+using OsmSharp.Streams;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Osm.Revit.Services
 {
@@ -27,16 +23,21 @@ namespace Osm.Revit.Services
             this.viewService = viewService;
         }
 
-        public void Run(Document doc, MapBounds mapbounds )
+        public void Run(Document doc, MapBounds mapbounds)
         {
-            using (var source = osmRepo.GetMapStream(mapbounds))
+            using (var stream = osmRepo.GetMapStream(mapbounds))
             {
-                var everything = source.ToList();
-                buildingService.Run(doc, everything);
-                streetService.Run(doc, everything);
-                topoService.Run(doc);
-                viewService.Run(doc);
+                RunWithStream(doc, stream);
             }
         }
+        public void RunWithStream(Document doc, XmlOsmStreamSource stream)
+        {
+            var everything = stream.ToList();
+            buildingService.Run(doc, everything);
+            streetService.Run(doc, everything);
+            topoService.Run(doc);
+            viewService.Run(doc);
+        }
+
     }
 }

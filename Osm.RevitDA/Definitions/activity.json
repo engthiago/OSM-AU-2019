@@ -18,11 +18,19 @@
       "verb": "get",
       "description": "Osm details parameter",
       "required": true
+    },
+    "result": {
+      "zip": false,
+      "ondemand": false,
+      "verb": "put",
+      "description": "Results",
+      "required": true,
+      "localName": "result.rvt"
     }
   },
   "engine": "Autodesk.Revit+2019",
   "appbundles": [
     "OsmDemo.OsmApp+test"
   ],
-  "description": "Osm Demo Activity."
+  "description": "Osm Demo."
 }

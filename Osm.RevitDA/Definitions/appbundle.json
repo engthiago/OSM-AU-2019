@@ -1,6 +1,5 @@
 {
   "id": "OsmApp",
-  "engine": "Autodesk.Revit+2019",
+  "engine": "Autodesk.Revit+2020",
   "description": "Osm Demo App Bundle."
 }
-

@@ -134,6 +134,9 @@
       <HintPath>..\packages\Autodesk.Forge.DesignAutomation.Revit.2020.0.0-beta1\lib\net47\DesignAutomationBridge.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="OsmSharp, Version=6.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.6.2.0\lib\net45\OsmSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="RevitAPI">
       <HintPath>$(RevitExePath)\RevitAPI.dll</HintPath>

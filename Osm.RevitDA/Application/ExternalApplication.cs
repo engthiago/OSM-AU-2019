@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 
 using Autodesk.Revit.DB;
 using DesignAutomationFramework;
+using Osm.Revit.Store;
 using Osm.Revit.Models;
+using Osm.Revit.Services;
+using OsmSharp.Streams;
 
 namespace Osm.Revit.Application
 {
@@ -14,10 +16,12 @@ namespace Osm.Revit.Application
     {
         private static string OsmDetailsFile   => "osmdetails.xml";
         private static string MapBoundsFile => "mapbounds.json";
+        private static string ResultFile => "result.rvt";
 
         public ExternalDBApplicationResult OnStartup(Autodesk.Revit.ApplicationServices.ControlledApplication app)
         {
             DesignAutomationBridge.DesignAutomationReadyEvent += HandleDesignAutomationReadyEvent;
+            ContainerStore.Registration();
             return ExternalDBApplicationResult.Succeeded;
         }
 
@@ -28,7 +32,7 @@ namespace Osm.Revit.Application
 
         public void HandleDesignAutomationReadyEvent(object sender, DesignAutomationReadyEventArgs e)
         {
-            GetOsmXml();
+            GenerateRevitFile(e.DesignAutomationData);
             e.Succeeded = true;
         }
 
@@ -48,12 +52,25 @@ namespace Osm.Revit.Application
             }
         }
 
-        private static bool FindFileInFolder(string filename)
+        private static void GenerateRevitFile(DesignAutomationData daData)
         {
-            return Directory.GetFiles(".").Any(f => f == $".\\{filename}");
+            var rvtApp = daData.RevitApp;
+            Document newDoc = rvtApp.NewProjectDocument(UnitSystem.Imperial) ?? throw new InvalidOperationException("Could not create new document.");
+
+            var osmServie = ContainerStore.Resolve<OsmService>();
+
+            using (Transaction t = new Transaction(newDoc, "Build City"))
+            {
+                t.Start();
+                osmServie.RunWithStream(newDoc, GetOsmXmlStream());
+                t.Commit();
+            }
+
+            newDoc.SaveAs(ResultFile);
         }
 
-        private static void GetOsmXml()
+
+        private static XmlOsmStreamSource GetOsmXmlStream()
         {
             MapBounds mapBounds = MapBounds.Deserialize(File.ReadAllText(MapBoundsFile));
             string suffix = $"map?bbox={mapBounds.Left}%2C{mapBounds.Bottom}%2C{mapBounds.Right}%2C{mapBounds.Top}";
@@ -64,6 +81,8 @@ namespace Osm.Revit.Application
                 throw new Exception($"Error in getting {OsmDetailsFile}");
 
             Console.WriteLine(File.ReadAllText(OsmDetailsFile));
+
+            return new XmlOsmStreamSource(File.Open(OsmDetailsFile, FileMode.Open));
         }
     }
 }
