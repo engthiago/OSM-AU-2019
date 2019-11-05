@@ -1,0 +1,28 @@
+{
+  "id": "OsmActivity",
+  "commandLine": [
+    "$(engine.path)\\\\revitcoreconsole.exe /al $(appbundles[OsmApp].path)"
+  ],
+  "parameters": {
+    "mapParam": {
+      "zip": false,
+      "ondemand": false,
+      "verb": "get",
+      "description": "Map bounds parameter",
+      "localName": "mapbounds.json",
+      "required": true
+    },
+    "osmParam": {
+      "zip": false,
+      "ondemand": true,
+      "verb": "get",
+      "description": "Osm details parameter",
+      "required": true
+    }
+  },
+  "engine": "Autodesk.Revit+2019",
+  "appbundles": [
+    "OsmDemo.OsmApp+test"
+  ],
+  "description": "Osm Demo."
+}

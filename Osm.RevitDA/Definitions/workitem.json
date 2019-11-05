@@ -1,0 +1,11 @@
+{
+  "activityId": "OsmDemo.OsmActivity+test",
+  "arguments": {
+    "mapParam": {
+      "url": "data:application/json,{'left':-73.8513,'top':40.689,'right':-73.8386,'bottom':40.6796}"
+    },
+    "osmParam": {
+      "url": "https://api.openstreetmap.org/api/0.6"
+    }
+  }
+}
