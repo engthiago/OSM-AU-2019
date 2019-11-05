@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="DBApplication">
+    <Name>OsmDemo</Name>
+    <Assembly>.\Osm.RevitDA.dll</Assembly>
+    <AddInId>A5F25C78-901E-4590-84DB-1FAFF8279DDE</AddInId>
+    <FullClassName>Osm.Revit.Application.OsmApplication</FullClassName>
+    <Description>"OsmDemo"</Description>
+    <VendorId>Autodesk</VendorId>
+    <VendorDescription>
+    </VendorDescription>
+  </AddIn>
+</RevitAddIns>

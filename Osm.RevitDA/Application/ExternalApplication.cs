@@ -10,7 +10,7 @@ namespace Osm.Revit.Application
 {
     [Autodesk.Revit.Attributes.Regeneration(Autodesk.Revit.Attributes.RegenerationOption.Manual)]
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    class OsnApplication : IExternalDBApplication
+    class OsmApplication : IExternalDBApplication
     {
         private static string OsmDetailsFile   => "osmdetails.xml";
         private static string MapBoundsFile => "mapbounds.json";
