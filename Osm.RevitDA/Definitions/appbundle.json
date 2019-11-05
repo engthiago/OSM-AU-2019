@@ -1,6 +1,6 @@
 {
   "id": "OsmApp",
   "engine": "Autodesk.Revit+2019",
-  "description": "Delete Walls app based on Revit 2019"
+  "description": "Osm Demo App Bundle."
 }
 
