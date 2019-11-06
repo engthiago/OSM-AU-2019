@@ -22,26 +22,13 @@ namespace Osm.Revit.Services
             this.osmStore = osmStore;
         }
 
-        public XmlOsmStreamSource GetMapStream(double left = -73.85282, double bottom = 40.68363, double right = -73.84965, double top = 40.68585)
-        {
-            var mapBounds = new MapBounds
-            {
-                Left = left,
-                Bottom = bottom,
-                Right = right,
-                Top = top,
-            };
-
-            return GetMapStream(mapBounds);
-        }
-
         public XmlOsmStreamSource GetMapStream(MapBounds mapBounds)
         {
-            osmStore.Geolocate(mapBounds);
             var task = this.client
                 .GetStreamAsync($"{baseAddres}/map?bbox={osmStore.MapLeft},{osmStore.MapBottom},{osmStore.MapRight},{osmStore.MapTop}");
             var source = new XmlOsmStreamSource(task.Result);
             return source;
         }
+
     }
 }

@@ -37,7 +37,7 @@ namespace Osm.Revit.Commands
                     Top = 40.6890
                 };
 
-                // Run the logic
+                OsmStore.Geolocate(mapbounds);
                 osmServie.Run(doc, mapbounds);
 
                 t.Commit();

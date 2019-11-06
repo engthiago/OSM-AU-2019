@@ -62,7 +62,10 @@ namespace Osm.Revit.Application
             using (Transaction t = new Transaction(newDoc, "Build City"))
             {
                 t.Start();
-                osmServie.RunWithStream(newDoc, GetOsmXmlStream());
+
+                MapBounds mapBounds = MapBounds.Deserialize(File.ReadAllText(MapBoundsFile));
+                OsmStore.Geolocate(mapBounds);
+                osmServie.RunWithStream(newDoc, GetOsmXmlStream(mapBounds));
                 t.Commit();
             }
 
@@ -70,9 +73,8 @@ namespace Osm.Revit.Application
         }
 
 
-        private static XmlOsmStreamSource GetOsmXmlStream()
+        private static XmlOsmStreamSource GetOsmXmlStream(MapBounds mapBounds)
         {
-            MapBounds mapBounds = MapBounds.Deserialize(File.ReadAllText(MapBoundsFile));
             string suffix = $"map?bbox={mapBounds.Left}%2C{mapBounds.Bottom}%2C{mapBounds.Right}%2C{mapBounds.Top}";
 
             Console.WriteLine($"!ACESAPI:acesHttpOperation(osmParam,{suffix},,,file://{OsmDetailsFile})");
