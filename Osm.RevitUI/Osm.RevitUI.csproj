@@ -131,6 +131,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="OsmSharp, Version=6.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.6.2.0\lib\net45\OsmSharp.dll</HintPath>
+    </Reference>
     <Reference Include="RevitAPI">
       <HintPath>$(RevitExePath)\RevitAPI.dll</HintPath>
       <Private>False</Private>
@@ -163,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\BuildingsCommand.cs" />
+    <Compile Include="Services\MapStreamHttpService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

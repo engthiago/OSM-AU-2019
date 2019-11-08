@@ -7,7 +7,7 @@ namespace Osm.Revit.Store
     {
         private static bool registered;
 
-        public static void Registration()
+        public static void Registration<MapStreamService>()
         {
             if (registered) return;
 
@@ -15,12 +15,12 @@ namespace Osm.Revit.Store
             Container.Register<OsmService>();
             Container.Register<CoordinatesService>();
             Container.Register<GeometryService>();
-            Container.Register<OsmRepository>();
             Container.Register<StreetService>();
             Container.Register<SolidGeometryService>();
             Container.Register<BuildingService>();
             Container.Register<TopoSurfaceService>();
             Container.Register<View3DService>();
+            Container.Register<IMapStreamService, MapStreamService>();
 
             registered = true;
         }

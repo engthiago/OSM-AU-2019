@@ -18,8 +18,8 @@ namespace Osm.Revit.Commands
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
 
-            // Container storage for IOC
-            ContainerStore.Registration();
+            ContainerStore.Registration<MapStreamHttpService>();
+
             var osmServie = ContainerStore.Resolve<OsmService>();
 
             using (Transaction t = new Transaction(doc, "Build City"))

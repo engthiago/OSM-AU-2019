@@ -6,7 +6,6 @@ using DesignAutomationFramework;
 using Osm.Revit.Store;
 using Osm.Revit.Models;
 using Osm.Revit.Services;
-using OsmSharp.Streams;
 
 namespace Osm.Revit.Application
 {
@@ -14,14 +13,13 @@ namespace Osm.Revit.Application
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     class OsmApplication : IExternalDBApplication
     {
-        private static string OsmDetailsFile   => "osmdetails.xml";
         private static string MapBoundsFile => "mapbounds.json";
         private static string ResultFile => "result.rvt";
 
         public ExternalDBApplicationResult OnStartup(Autodesk.Revit.ApplicationServices.ControlledApplication app)
         {
             DesignAutomationBridge.DesignAutomationReadyEvent += HandleDesignAutomationReadyEvent;
-            ContainerStore.Registration();
+            ContainerStore.Registration<MapStreamOnDemandService>();
             return ExternalDBApplicationResult.Succeeded;
         }
 
@@ -34,22 +32,6 @@ namespace Osm.Revit.Application
         {
             GenerateRevitFile(e.DesignAutomationData);
             e.Succeeded = true;
-        }
-
-        private static bool WaitForInput()
-        {
-            int idx = 0;
-            while (true)
-            {
-                char ch = Convert.ToChar(Console.Read());
-                if (ch == '\n')
-                    return true; // found lf.
-                else if (ch == '\x3')
-                    return false; // error, cancelled.
-                if (idx >= 16)
-                    return false; // failed, after retries.
-                idx++;
-            }
         }
 
         private static void GenerateRevitFile(DesignAutomationData daData)
@@ -65,26 +47,11 @@ namespace Osm.Revit.Application
 
                 MapBounds mapBounds = MapBounds.Deserialize(File.ReadAllText(MapBoundsFile));
                 OsmStore.Geolocate(mapBounds);
-                osmServie.RunWithStream(newDoc, GetOsmXmlStream(mapBounds));
+                osmServie.Run(newDoc, mapBounds);
                 t.Commit();
             }
 
             newDoc.SaveAs(ResultFile);
-        }
-
-
-        private static XmlOsmStreamSource GetOsmXmlStream(MapBounds mapBounds)
-        {
-            string suffix = $"map?bbox={mapBounds.Left}%2C{mapBounds.Bottom}%2C{mapBounds.Right}%2C{mapBounds.Top}";
-
-            Console.WriteLine($"!ACESAPI:acesHttpOperation(osmParam,{suffix},,,file://{OsmDetailsFile})");
-
-            if (!WaitForInput())
-                throw new Exception($"Error in getting {OsmDetailsFile}");
-
-            Console.WriteLine(File.ReadAllText(OsmDetailsFile));
-
-            return new XmlOsmStreamSource(File.Open(OsmDetailsFile, FileMode.Open));
         }
     }
 }

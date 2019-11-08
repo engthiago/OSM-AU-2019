@@ -191,10 +191,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Services\BuildingService.cs" />
+    <Compile Include="Services\IMapStreamService.cs" />
     <Compile Include="Services\OsmService.cs" />
     <Compile Include="Services\SolidGeometryService.cs" />
     <Compile Include="Services\GeometryService.cs" />
-    <Compile Include="Services\OsmRepository.cs" />
     <Compile Include="Services\CoordinatesService.cs" />
     <Compile Include="Services\StreetService.cs" />
     <Compile Include="Services\TopoSurfaceService.cs" />
