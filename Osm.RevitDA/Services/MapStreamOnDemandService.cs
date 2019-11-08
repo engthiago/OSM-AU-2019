@@ -10,7 +10,7 @@ namespace Osm.Revit.Services
 {
     class MapStreamOnDemandService : IMapStreamService
     {
-        private static string OsmDetailsFile => "osmdetails.xml";
+        private static string OsmDetailsFile => "osmdetails";
         private static bool WaitForInput()
         {
             int idx = 0;
@@ -30,15 +30,16 @@ namespace Osm.Revit.Services
         public List<OsmGeo> GetOsmGeoList(MapBounds mapbounds)
         {
             string suffix = $"map?bbox={mapbounds.Left}%2C{mapbounds.Bottom}%2C{mapbounds.Right}%2C{mapbounds.Top}";
+            string filename = $"{OsmDetailsFile}_{MapBounds.Serialize(mapbounds).GetHashCode()}.xml";
 
-            Console.WriteLine($"!ACESAPI:acesHttpOperation(osmParam,{suffix},,,file://{OsmDetailsFile})");
+            Console.WriteLine($"!ACESAPI:acesHttpOperation(osmParam,{suffix},,,file://{filename})");
 
             if (!WaitForInput())
-                throw new Exception($"Error in getting {OsmDetailsFile}");
+                throw new Exception($"Error in getting {filename}");
 
-            Console.WriteLine(File.ReadAllText(OsmDetailsFile));
+            Console.WriteLine($"Downloaded osm for: {MapBounds.Serialize(mapbounds)}");
 
-            using (var stream = new XmlOsmStreamSource(File.Open(OsmDetailsFile, FileMode.Open)))
+            using (var stream = new XmlOsmStreamSource(File.Open(filename, FileMode.Open)))
             {
                 return stream.ToList();
             }

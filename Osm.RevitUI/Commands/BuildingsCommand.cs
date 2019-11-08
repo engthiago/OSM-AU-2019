@@ -38,7 +38,7 @@ namespace Osm.Revit.Commands
                 };
 
                 OsmStore.Geolocate(mapbounds);
-                osmServie.Run(doc, mapbounds);
+                osmServie.Run(doc);
 
                 t.Commit();
             }

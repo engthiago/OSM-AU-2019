@@ -13,12 +13,12 @@ namespace Osm.Revit.Store
         public double RadiusEquator => 6356752.314245179;
         public double RadiusPolar => 6378137.0;
 
-        private static MapBounds mapBounds = null;
+        public static MapBounds Bounds = null;
 
-        public double MapTop => mapBounds.Top;
-        public double MapBottom => mapBounds.Bottom;
-        public double MapLeft => mapBounds.Left;
-        public double MapRight => mapBounds.Right;
+        public double MapTop => Bounds.Top;
+        public double MapBottom => Bounds.Bottom;
+        public double MapLeft => Bounds.Left;
+        public double MapRight => Bounds.Right;
 
         public double DefaultStreetWidth { get; set; } = UnitUtils.ConvertToInternalUnits(6, DisplayUnitType.DUT_METERS);
 
@@ -26,7 +26,7 @@ namespace Osm.Revit.Store
 
         public static void Geolocate(MapBounds mapBounds)
         {
-            OsmStore.mapBounds = mapBounds;
+            Bounds = mapBounds;
         }
 
         public int MoveNextId()

@@ -47,7 +47,7 @@ namespace Osm.Revit.Application
 
                 MapBounds mapBounds = MapBounds.Deserialize(File.ReadAllText(MapBoundsFile));
                 OsmStore.Geolocate(mapBounds);
-                osmServie.Run(newDoc, mapBounds);
+                osmServie.Run(newDoc);
                 t.Commit();
             }
 
