@@ -31,8 +31,9 @@ namespace Osm.Revit.Services
                                     n.Tags != null
                                     && n.Tags.ContainsKey("highway")
                                     && n is Way)).Cast<Way>().ToList();
+            var allNodes = everything.ToDictionary(g => g.Id, g => g);
 
-            var streetDataList = CreateStreetSegments(osmStreets, everything);
+            var streetDataList = CreateStreetSegments(osmStreets, allNodes);
             var intersectionDataList = CreateIntersections(streetDataList);
 
             foreach (var intersData in intersectionDataList)
@@ -84,7 +85,7 @@ namespace Osm.Revit.Services
             return streetsAndIntersections;
         }
 
-        public List<StreetSegment> CreateStreetSegments(List<Way> OsmStreets, List<OsmGeo> everything)
+        public List<StreetSegment> CreateStreetSegments(List<Way> OsmStreets, Dictionary<long?, OsmGeo> allNodes)
         {
             var boundLines = this.geometryService.CreateBoundingLines();
             List<StreetSegment> streetSegments = new List<StreetSegment>();
@@ -94,7 +95,7 @@ namespace Osm.Revit.Services
                 var points = new List<XYZ>();
                 foreach (var nodeId in osmStreet.Nodes)
                 {
-                    var geometry = everything.FirstOrDefault(n => n.Id == nodeId);
+                    var geometry = allNodes[nodeId];
                     if (geometry is Node node)
                     {
                         var coords = coordService.GetRevitCoords((double)node.Latitude, (double)node.Longitude);

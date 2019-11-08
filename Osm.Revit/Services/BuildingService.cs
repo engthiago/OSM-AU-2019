@@ -1,13 +1,8 @@
 ﻿using Autodesk.Revit.DB;
-using Osm.Revit.Store;
 using OsmSharp;
-using OsmSharp.Streams;
 using OsmSharp.Tags;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Osm.Revit.Services
 {
@@ -26,9 +21,10 @@ namespace Osm.Revit.Services
         {
             var solids = new List<DirectShape>();
             var buildings = everything.Where(n => n is Way && n.Tags.IsTrue("building")).Cast<Way>();
+            var allNodes = everything.ToDictionary(g => g.Id, g => g);
             foreach (var building in buildings)
             {
-                var solid = RunBuilding(doc, building, everything);
+                var solid = RunBuilding(doc, building, allNodes);
                 if (solid == null)
                     continue;
                 solids.Add(solid);
@@ -36,12 +32,12 @@ namespace Osm.Revit.Services
             return solids;
         }
 
-        private DirectShape RunBuilding(Document doc, Way building, List<OsmGeo> everything)
+        private DirectShape RunBuilding(Document doc, Way building, Dictionary<long ?, OsmGeo> allNodes)
         {
             var points = new List<XYZ>();
             foreach (var nodeId in building.Nodes)
             {
-                var geometry = everything.FirstOrDefault(n => n.Id == nodeId);
+                var geometry = allNodes[nodeId];
                 if (geometry is Node node)
                 {
                     var coords = coordService.GetRevitCoords((double)node.Latitude, (double)node.Longitude);
