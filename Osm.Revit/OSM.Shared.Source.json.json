@@ -1,0 +1,43 @@
+{
+    "common": [
+        {
+            "name": "Name",
+            "guid": "E513F3CE-5784-4936-AB26-CBE1C2212CB3",
+            "tag": "name"
+        }
+    ],
+    "buildings": [
+        {
+            "name": "Building Type",
+            "guid": "2F7AE11B-BADA-4BC3-8FBA-BD62175521FA",
+            "tag": "name"
+        }
+    ],
+    "streets": [
+        {
+            "name": "Usage",
+            "guid": "18C7DEEF-6FDC-4B31-BE2A-F47EC9787D40",
+            "tag": "highway"
+        },
+        {
+            "name": "Type",
+            "guid": "2F314F17-DB21-430C-BD3F-C6B7029C28F9",
+            "tag": "tiger:name_type"
+        }, 
+        {
+            "name": "Lanes",
+            "guid": "965B8243-1D52-4E74-BDF7-62E9437615E7",
+            "tag": "tiger:name_type"
+        }, 
+        {
+            "name": "Max Speed",
+            "guid": "F1195882-5C16-4B35-8D73-35E8F3C05A42",
+            "tag": "maxspeed"
+        }, 
+        {
+            "name": "Surface",
+            "guid": "7F558884-6311-4186-8CCC-CA4E9989469B",
+            "tag": "surface"
+        }
+    ]
+}
