@@ -36,6 +36,7 @@ namespace Osm.Web.Controllers
         }
 
         [HttpPut()]
+        [RequestSizeLimit(100000000)]
         public async Task<IActionResult> Results(string email)
         {
             var dateStamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
