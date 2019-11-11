@@ -17,18 +17,21 @@ namespace Osm.Web.Controllers
         private readonly DaService daService;
         private readonly MailService mailService;
         private readonly IHostingEnvironment env;
+        private readonly DataManagementService dataManagementService;
+        private readonly ModelDerivativeService modelDerivativeService;
         private readonly string baseUrl;
 
-        public DAController(DaService daService, MailService mailService, IHostingEnvironment env)
+        public DAController(DaService daService, MailService mailService, IHostingEnvironment env, DataManagementService dataManagementService, ModelDerivativeService modelDerivativeService)
         {
             this.daService = daService;
             this.mailService = mailService;
             this.env = env;
-
+            this.dataManagementService = dataManagementService;
+            this.modelDerivativeService = modelDerivativeService;
             baseUrl = "https://osmdemo.azurewebsites.net";
             if (env.IsDevelopment())
             {
-                baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+                baseUrl = "https://localhost:44319/api";
             }
         }
 
@@ -37,14 +40,26 @@ namespace Osm.Web.Controllers
         {
             var dateStamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             var fileName = $"osm-{dateStamp}.rvt";
-            using (var fs = new FileStream("wwwroot/downloads/" + fileName, FileMode.Create))
-            {
-                await Request.Body.CopyToAsync(fs);
-            }
+            //using (var fs = new FileStream("wwwroot/downloads/" + fileName, FileMode.Create))
+            //{
+            //    await Request.Body.CopyToAsync(fs);
+            //}
 
-            var downloadUrl = this.baseUrl + "/downloads/" + fileName;
+            var bucket = "osmdemo";
 
-            await mailService.SendWorkCompleteEmail(email, downloadUrl);
+            var fileResult = await this.dataManagementService.UploadFileToBucket(fileName, bucket, this.Request.Body);
+
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(fileResult.ObjectId);
+            var urn = Convert.ToBase64String(plainTextBytes).Replace("=", "").Replace("/", "_");
+
+            await this.modelDerivativeService.TranslateForTheViewer(urn);
+
+            var signedUrl = await this.dataManagementService.CreateSignedUrl(bucket, fileResult.ObjectKey);
+
+            var downloadUrl = signedUrl.SignedUrl;
+            var viewUrl = this.baseUrl + "/viewer.html?urn=" + urn;
+
+            await mailService.SendWorkCompleteEmail(email, downloadUrl, viewUrl);
 
             return Ok();
         }
