@@ -1,4 +1,6 @@
-﻿document.addEventListener("DOMContentLoaded", function (event) {
+﻿var viewer;
+
+document.addEventListener("DOMContentLoaded", function (event) {
 
     function getParameterByName(name) {
         url = window.location.href;
@@ -17,6 +19,7 @@
         };
         Autodesk.Viewing.Initializer(options, function () {
             viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'));
+            viewer.loadExtension('Autodesk.DocumentBrowser');
             viewer.start();
             loadDocument('urn:' + urn);
         });

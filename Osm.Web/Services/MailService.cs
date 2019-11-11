@@ -19,7 +19,7 @@ namespace Osm.Web.Services
 
         public async Task SendWorkCompleteEmail(string email, string downloadURL, string viewerUrl)
         {
-            var body = $"<h1>Job Processing Complete</h1><h3>Please download the results <a href='{downloadURL}'>here</a></h3><h3>You can view the results <a href='{viewerUrl}'>here</a></h3>";
+            var body = $"<h1>Job Processing Complete</h1><h3>Please download the results <a href='{downloadURL}'>here</a></h3><h3>You can view the results <a href='{viewerUrl}'>here</a><br><br><p><i>*These links will be available for 24 hours.</i></p></h3>";
             var message = this.CreateMessage("Design Automation: Job Completed", body);
             message.To.Add(new MailboxAddress(email));
 

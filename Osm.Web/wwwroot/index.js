@@ -88,8 +88,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
             localStorage.setItem('bounds', JSON.stringify(mapBounds));
 
             var popUp = '<h3>Revit Bounding Box</h3>';
-            popUp += mapBounds.left + ', ' + mapBounds.bottom + '<br>' + mapBounds.right + ', ' + mapBounds.top + '<br><br>';
-            popUp += '<button id="rem">Remove Boundings</button><br><br>Email:<br><input type="text" id="email"><br><br><button id="sendrevit">Send to Revit</button>';
+            popUp += mapBounds.left + ', ' + mapBounds.bottom + '<br>' + mapBounds.right + ', ' + mapBounds.top + '<br>';
+            popUp += '<button id="rem">Remove Boundings</button><br><br><div id="actions">Email:<br><input type="text" id="email"><br><br><button id="sendrevit">Send to Revit</button><div>';
+            popUp += '<br><br>';
 
             layer.bindPopup(popUp);
         }
@@ -125,11 +126,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
         xhr.withCredentials = true;
 
         xhr.addEventListener("readystatechange", function () {
+            document.getElementById('loading').classList.add('hidden');
             if (this.readyState === 4) {
                 console.log(this.response);
                 var workItem = JSON.parse(this.responseText);
                 if (workItem.status === 'pending') {
-                    alert(`Job Sent Successfully an email will be sent when completed\nId: ${workItem.id}`);
+                    map.closePopup();
+                    alert(`Job sent successfully, an email will be sent when completed`);
                 } else {
                     alert(`Error sending Job`);
                 }
@@ -141,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         xhr.setRequestHeader("cache-control", "no-cache");
 
         xhr.send(json);
+        document.getElementById('loading').classList.remove('hidden');
     }
 
     var popclick = function (e) {

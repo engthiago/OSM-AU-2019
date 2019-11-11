@@ -33,7 +33,7 @@ namespace Osm.Web.Services
                 {
                     Formats = new List<Format>()
                     {
-                        new Format { Type = "svf", Views = new List<string> { "2d", "3d" } }
+                        new Format { Type = "svf", Views = new List<string> { "3d" } }
                     }
                 }
             };
