@@ -31,12 +31,12 @@ namespace Osm.Web.Controllers
             baseUrl = "https://osmdemo.azurewebsites.net";
             if (env.IsDevelopment())
             {
-                baseUrl = "https://localhost:44319/api";
+                baseUrl = "https://localhost:44319";
             }
         }
 
         [HttpPut()]
-        [RequestSizeLimit(100000000)]
+        [RequestSizeLimit(200000000)]
         public async Task<IActionResult> Results(string email)
         {
             var dateStamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
