@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.DB;
 using OsmSharp;
 using OsmSharp.Tags;
+using Osm.Revit.Store;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,11 +9,13 @@ namespace Osm.Revit.Services
 {
     public class BuildingService
     {
+        private readonly GeometryService geometryService;
         private readonly CoordinatesService coordService;
         private readonly SolidGeometryService shapeService;
 
-        public BuildingService(CoordinatesService coordService, SolidGeometryService shapeService)
+        public BuildingService(GeometryService geometryService, CoordinatesService coordService, SolidGeometryService shapeService)
         {
+            this.geometryService = geometryService;
             this.coordService = coordService;
             this.shapeService = shapeService;
         }
@@ -34,16 +37,8 @@ namespace Osm.Revit.Services
 
         private DirectShape RunBuilding(Document doc, Way building, Dictionary<long ?, OsmGeo> allNodes)
         {
-            var points = new List<XYZ>();
-            foreach (var nodeId in building.Nodes)
-            {
-                var geometry = allNodes[nodeId];
-                if (geometry is Node node)
-                {
-                    var coords = coordService.GetRevitCoords((double)node.Latitude, (double)node.Longitude);
-                    points.Add(coords);
-                }
-            }
+            var points = this.geometryService.GetPointsFromNodes(building.Nodes, allNodes);
+            if (points == null) return null;
 
             var curveLoop = new CurveLoop();
             for (int i = 0; i < points.Count - 1; i++)

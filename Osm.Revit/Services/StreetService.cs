@@ -92,16 +92,9 @@ namespace Osm.Revit.Services
 
             foreach (var osmStreet in OsmStreets)
             {
-                var points = new List<XYZ>();
-                foreach (var nodeId in osmStreet.Nodes)
-                {
-                    var geometry = allNodes[nodeId];
-                    if (geometry is Node node)
-                    {
-                        var coords = coordService.GetRevitCoords((double)node.Latitude, (double)node.Longitude);
-                        points.Add(coords);
-                    }
-                }
+                var points = this.geometryService.GetPointsFromNodes(osmStreet.Nodes, allNodes);
+                if (points == null)
+                    continue;
 
                 for (int i = 0; i < points.Count - 1; i++)
                 {

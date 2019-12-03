@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.DB;
-using Osm.Revit.Models;
+using OsmSharp;
 using Osm.Revit.Store;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -77,6 +78,118 @@ namespace Osm.Revit.Services
         public bool ListContainsPoint(List<XYZ> list, XYZ point)
         {
             return list.FirstOrDefault(p => p.IsAlmostEqualTo(point)) != null;
+        }
+
+
+        [Flags]
+        private enum OutCode
+        {
+            Inside = 0,
+            Left = 1,
+            Right = 2,
+            Bottom = 4,
+            Top = 8
+        }
+
+        private OutCode ComputeOutCode(UV coords)
+        {
+            OutCode code = OutCode.Inside;
+
+            if (coords.U < osmStore.MapLeft)
+                code |= OutCode.Left;
+            else if (coords.U > osmStore.MapRight)
+                code |= OutCode.Right;
+            if (coords.V < osmStore.MapBottom)
+                code |= OutCode.Bottom;
+            else if (coords.V > osmStore.MapTop)
+                code |= OutCode.Top;
+
+            return code;
+        }
+
+        List<UV> CohenSutherlandClipSegments(UV c0, UV c1)
+        {
+            OutCode outcode0 = ComputeOutCode(c0);
+            OutCode outcode1 = ComputeOutCode(c1);
+            bool accept = false;
+            bool second = false;
+
+            while (true)
+            {
+                if ((outcode0 | outcode1) == OutCode.Inside)
+                {
+                    accept = true;
+                    break;
+                }
+                else if ((outcode0 & outcode1) != OutCode.Inside)
+                {
+                    break;
+                }
+                else
+                {
+                    double x, y;
+
+                    OutCode outcodeOut = outcode0 != OutCode.Inside ? outcode0 : outcode1;
+
+                    if ((outcodeOut & OutCode.Top) != OutCode.Inside)
+                    {
+                        x = c0.U + (c1.U - c0.U) * (osmStore.MapTop - c0.V) / (c1.V - c0.V);
+                        y = osmStore.MapTop;
+                    }
+                    else if ((outcodeOut & OutCode.Bottom) != OutCode.Inside)
+                    {
+                        x = c0.U + (c1.U - c0.U) * (osmStore.MapBottom - c0.V) / (c1.V - c0.V);
+                        y = osmStore.MapBottom;
+                    }
+                    else if ((outcodeOut & OutCode.Right) != OutCode.Inside)
+                    {
+                        y = c0.V + (c1.V - c0.V) * (osmStore.MapRight - c0.U) / (c1.U - c0.U);
+                        x = osmStore.MapRight;
+                    }
+                    else /* if ((outcodeOut & OutCode.Left) != OutCode.Inside) */
+                    {
+                        y = c0.V + (c1.V - c0.V) * (osmStore.MapLeft - c0.U) / (c1.U - c0.U);
+                        x = osmStore.MapLeft;
+                    }
+
+                    if (outcodeOut == outcode0)
+                    {
+                        c0 = new UV(x, y);
+                        outcode0 = ComputeOutCode(c0);
+                    }
+                    else
+                    {
+                        c1 = new UV(x, y);
+                        second = true;
+                        outcode1 = ComputeOutCode(c1);
+                    }
+                }
+            }
+
+            List<UV> coords = new List<UV>();
+            if (accept)
+            {
+                coords.Add(c0);
+                if (second)
+                    coords.Add(c1);
+            }
+
+            return coords;
+        }
+
+        public List<UV> GetCoordsFromNodeIds(long[] nodeIds, Dictionary<long?, OsmGeo> allNodes) => nodeIds.Where(id => allNodes[id] is Node).Select(id => allNodes[id] as Node).Select(n => new UV(n.Longitude.Value, n.Latitude.Value)).ToList();
+
+        public List<XYZ> GetPointsFromNodes(long[] nodeIds, Dictionary<long?, OsmGeo> allNodes)
+        {
+            var coords = GetCoordsFromNodeIds(nodeIds, allNodes);
+            var points = new List<XYZ>();
+            for (int i=0; i<coords.Count-1; i++)
+            {
+                points.AddRange(CohenSutherlandClipSegments(coords[i], coords[i+1]).Select(c => coordService.GetRevitCoords(c.V, c.U)));
+            }
+            if (points.Count > 1)
+                points.Add(points[0]);
+            return points;
         }
 
     }
